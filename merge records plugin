@@ -1,0 +1,77 @@
+using Microsoft.Xrm.Sdk;
+using System;
+using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Query;
+using System.Linq;
+
+namespace MergeRecord
+{
+public class MergeRecordCE : IPlugin
+{
+public void Execute(IServiceProvider serviceProvider)
+{
+try
+{
+IPluginExecutionContext context = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+//Extract the tracing service for use in debugging sandboxed plug-ins.
+ITracingService tracingService = (ITracingService)serviceProvider.GetService(typeof(ITracingService));
+IOrganizationServiceFactory serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+IOrganizationService service = serviceFactory.CreateOrganizationService(context.UserId);
+//Checking the context type to be create to trigger the plugin.
+if (context.MessageName.ToLower() == "create")
+{
+if (context.InputParameters.Contains("Target") && context.InputParameters["Target"] is Entity)
+{
+//Creating target Entity.
+Entity target = (Entity)context.InputParameters["Target"];
+if (target.LogicalName == "rms_plannerrisk")
+{
+//Retrieving the attributes of the new added risk for the registration
+Entity member = service.Retrieve(target.LogicalName, target.Id, new ColumnSet(true));
+var name = member.Attributes["rms_name"].ToString();
+/var telephone = member.Attributes["telephone1"].ToString();/
+QueryExpression riskQuery = new QueryExpression
+{
+EntityName = target.LogicalName,
+ColumnSet = new ColumnSet(true),
+Criteria = new FilterExpression
+{
+Conditions = { new ConditionExpression { AttributeName = "rms_name", Operator = ConditionOperator.Equal, Values = { name } },}
+}
+};
+Entity riskRecord = service.RetrieveMultiple(riskQuery).Entities[0];
+
+
+
+
+                        target["statuscode"] = new OptionSetValue(2);
+                        target["statecode"] = new OptionSetValue(1);
+                        service.Update(target);
+
+                        riskRecord["rms_name"] = name;
+                        service.Update(riskRecord);
+
+                        
+
+
+
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            
+            throw new InvalidPluginExecutionException(ex.Message);
+        }
+    }
+
+}
+
+
+
+
+
+ 
+
+}
