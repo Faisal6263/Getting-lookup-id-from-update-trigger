@@ -46,23 +46,16 @@ namespace PlgCreateRecord
 
  
 
+                      // Retrieve the task ID from the ak_tasks field of the ak_ak_tasksitems entity
+                      var taskid = ((EntityReference)service.Retrieve("ak_ak_tasksitems", entity.Id, new ColumnSet("ak_tasks")).
+					            GetAttributeValue<EntityReference>("ak_tasks")).Id;
 
-                        Guid taskitemsid = entity.Id;
+                      // Retrieve the ak_ak_tasks entity record with all fields
+                      Entity myEntity = service.Retrieve("ak_ak_tasks", taskid, new ColumnSet(true));
 
-                        ColumnSet LookupTask = new ColumnSet(new String[] { "ak_tasks" });
-
-                        Entity Myentityhavinglookup = service.Retrieve("ak_ak_tasksitems",taskitemsid,LookupTask);
-
-                        var taskid = ((EntityReference)Myentityhavinglookup["ak_tasks"]).Id;
-
-                        OptionSetValue topic = (OptionSetValue)entity["ak_status"];
-                        
-                        int selectedTopicValue = topic.Value;
-
-                        Entity tasksenti = new Entity("ak_ak_tasks", taskid);
-
-
-                        Entity myEntity = service.Retrieve("ak_ak_tasks", taskid, new ColumnSet(true));
+                      // Retrieve the status field value from the ak_ak_tasksitems entity
+                      var topic = (OptionSetValue)entity["ak_status"];
+                      int selectedTopicValue = topic.Value;
 
 
                 }
