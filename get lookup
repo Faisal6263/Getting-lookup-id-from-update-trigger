@@ -51,21 +51,12 @@ namespace PlgCreateRecord
 
                         ColumnSet LookupTask = new ColumnSet(new String[] { "ak_tasks" });
 
- 
-
                         Entity Myentityhavinglookup = service.Retrieve("ak_ak_tasksitems",taskitemsid,LookupTask);
-
- 
 
                         var taskid = ((EntityReference)Myentityhavinglookup["ak_tasks"]).Id;
 
- 
-
-                        //Guid tasksid = ((EntityReference)entity["ak_tasks"]).Id;
-
- 
-
                         OptionSetValue topic = (OptionSetValue)entity["ak_status"];
+                        
                         int selectedTopicValue = topic.Value;
 
                         Entity tasksenti = new Entity("ak_ak_tasks", taskid);
